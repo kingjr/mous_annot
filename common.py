@@ -53,7 +53,7 @@ def spacy_to_tree(node):
     return Tree(attributes, list(map(spacy_to_tree, node.children)))
 
 
-def modify_tree(doc):
+def modify_tree(doc, distance=80):
     """Interactive plotting: expect spacy doc structure
     e.g.
     doc = nlp('He is here')
@@ -62,7 +62,7 @@ def modify_tree(doc):
 
     def get_html(doc, init=False):
         html = displacy.render(doc, style="dep", jupyter=False,
-                               options=dict(distance=80))
+                               options=dict(distance=distance))
         # add preview of compressed tree
         html += '\n\n\n' + str(spacy_to_tree(next(doc.sents).root))
         return html
@@ -106,7 +106,7 @@ def modify_tree(doc):
 
 
 class InteractiveTree():
-    def __init__(self, sentences, nlp, data_path='./'):
+    def __init__(self, sentences, nlp, data_path='./', distance=80):
         self.sentences = sentences
         self.nlp = nlp
         self.data_path = data_path
@@ -123,12 +123,13 @@ class InteractiveTree():
 
         self.load_button = widgets.Button(description='load')
         self.load_button.on_click(self.load)
+        self.distance = distance
 
         self.load()
         self.update()
 
     def update(self,):
-        interact(modify_tree(self.doc_),
+        interact(modify_tree(self.doc_, distance=self.distance),
                  index=self.select,
                  load=self.load_button,
                  reset=self.reset_button)
